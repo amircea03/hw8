@@ -66,6 +66,38 @@ def find_rest_in_building(building_num, db):
     return rest_list
     pass
     
+#EXTRA CREDIT
+def get_highest_rating(db): #Do this through DB as well
+    """
+    This function return a list of two tuples. The first tuple contains the highest-rated restaurant category 
+    and the average rating of the restaurants in that category, and the second tuple contains the building number 
+    which has the highest rating of restaurants and its average rating.
+
+    This function should also plot two barcharts in one figure. The first bar chart displays the categories 
+    along the y-axis and their ratings along the x-axis in descending order (by rating).
+    The second bar chart displays the buildings along the y-axis and their ratings along the x-axis 
+    in descending order (by rating).
+    """
+    conn = sqlite3.connect(db)
+    cur = conn.cursor()
+    cur.execute("SELECT c.category, AVG(r.rating) AS avg_rating FROM restaurants r INNER JOIN categories c ON r.category_id = c.id GROUP BY c.category ORDER BY avg_rating DESC")
+    cat_rows = cur.fetchall()
+    cur.execute("SELECT b.building, AVG(r.rating) AS avg_rating FROM restaurants r INNER JOIN buildings b ON r.building_id = b.id GROUP BY b.building ORDER BY avg_rating DESC")
+    build_rows = cur.fetchall()
+
+    highest_rating = [cat_rows[0], build_rows[0]]
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+    ax1.barh([row[0] for row in cat_rows], [row[1] for row in cat_rows])
+    ax1.set_xlabel('Average Rating')
+    ax1.set_title('Categories')
+    ax2.barh([row[0] for row in build_rows], [row[1] for row in build_rows])
+    ax2.set_xlabel('Average Rating')
+    ax2.set_title('Buildings')
+    plt.show()
+    conn.close()
+    return highest_rating
+    pass
 
 #Try calling your functions here
 def main():
